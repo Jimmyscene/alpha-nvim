@@ -75,6 +75,16 @@ local function icon(fn)
     return nwd.get_icon(fn, ext, { default = true })
 end
 
+local default_mru_ignore = { "gitcommit" }
+
+local mru_opts = {
+    ignore = function(path, ext)
+        return (string.find(path, "COMMIT_EDITMSG")) or (vim.tbl_contains(default_mru_ignore, ext))
+    end,
+    autocd = false,
+    path_color = "Comment"
+}
+
 local function file_button(fn, sc, short_fn, autocd)
     short_fn = if_nil(short_fn, fn)
     local ico_txt
@@ -98,20 +108,12 @@ local function file_button(fn, sc, short_fn, autocd)
     local file_button_el = button(sc, ico_txt .. short_fn, "<cmd>e " .. fn .. cd_cmd .." <CR>")
     local fn_start = short_fn:match(".*[/\\]")
     if fn_start ~= nil then
-        table.insert(fb_hl, { "Comment", #ico_txt, #fn_start + #ico_txt })
+        table.insert(fb_hl, { mru_opts.path_color, #ico_txt, #fn_start + #ico_txt })
     end
     file_button_el.opts.hl = fb_hl
     return file_button_el
 end
 
-local default_mru_ignore = { "gitcommit" }
-
-local mru_opts = {
-    ignore = function(path, ext)
-        return (string.find(path, "COMMIT_EDITMSG")) or (vim.tbl_contains(default_mru_ignore, ext))
-    end,
-    autocd = false
-}
 
 --- @param start number
 --- @param cwd string? optional
